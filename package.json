@@ -4,7 +4,8 @@
   },
   "marp": {
     "inputDir": "./src",
-    "output": "./public"
+    "output": "./public",
+    "themeSet": "./themes"
   },
   "scripts": {
     "start": "yarn run marp -s -w"
