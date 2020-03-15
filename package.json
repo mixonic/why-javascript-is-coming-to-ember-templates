@@ -9,6 +9,6 @@
   },
   "scripts": {
     "start": "yarn run marp -s -w",
-    "build": "rm -rf public/* && cp -a src/images public/ && yarn run marp"
+    "build": "rm -rf public/* && git checkout --detach && cp -aR src/images public/ && yarn run marp && git reset gh-pages && git reset --soft gh-pages && git checkout gh-pages && git checkout gh-pages -- .gitignore"
   }
 }
