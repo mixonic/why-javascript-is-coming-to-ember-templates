@@ -64,42 +64,61 @@ reference files in Ember.
 ---
 
 ```hbs
-<Welcome />
+To you I say: <Welcome />
 ```
 
 <!--
-So this is a valid component to render in Ember. And I want to ask you a
-question: If I'm working on an app with this component where to I find the
-template which goes with it?
 
-Go ahead and think of your answer.
+Lets say we're reading this template: Most Ember developers would intuit
+that they could look for the definition of `Welcome`'s template here:
+
 -->
 
-* `app/templates/components/welcome.hbs`
-* `app/templates/components/welcome/template.hbs`
-* `node_modules/an-addon/app/templates/components/welcome.hbs`
-* `node_modules/an-addon/app/templates/components/welcome/template.hbs`
-* `node_modules/a-different-addon/app/templates/components/welcome.hbs`
-* Actually, it could literally be anywhere since resolvers are a runtime concern :grimacing:
+- `app/templates/components/welcome.hbs`
 
 <!--
 
-If you guess this, wrong! (for each until the last one)
+and that is often correct.
 
-So this facet of Ember make a couple things difficult. For example, if you
-want to open the implemention of the modal component when clicking on it in
-your IDE, we would need to run your apps resolver. If TypeScript wants to
-check the definition of this object, we need to run your apps resolver.
-
-And running the apps resolve isn't even itself always going to do the trick
-since the resolver is a /runtime/ concern. I'll come back to that when I
-talk about dynamic linking.
+But if you want to build an implementation of jump to definition, or get
+TypeScript to understand where the component's template might be, you need
+to consider a number of other valid locations.
 
 -->
 
 ---
 
-(graph of local maxima)
+```hbs
+To you I say: <Welcome />
+```
+
+- `app/templates/components/welcome.hbs`
+- `app/templates/components/welcome/template.hbs`
+- `node_modules/an-addon/app/templates/components/welcome.hbs`
+- `node_modules/an-addon/app/templates/components/welcome/template.hbs`
+- `node_modules/a-different-addon/app/templates/components/welcome.hbs`
+- Actually, it could literally be anywhere since resolvers are a runtime concern :grimacing:
+
+<!--
+
+Ember's resovler permits that template to be defined in a number of different
+locations, and the logic for deciding which to use is implemented as part of
+the application's runtime logic.
+
+That makes
+it challenging to support common static tooling like IDEs, type systmes,
+and bundlers common across other parts of the JavaScript community.
+
+-->
+
+---
+<style scoped>
+  section {
+    background-color: white;
+  }
+</style>
+
+![bg auto](./images/local-maximum.png)
 
 <!--
 
@@ -121,8 +140,17 @@ to align Ember with that better solution.
 -->
 
 ---
+<style scoped>
+  section {
+    background-color: white;
+  }
+</style>
 
-### Matt's Elegant Ember Microlib
+![bg auto](./images/local-maximum-local-img.png)
+
+---
+
+### Matt's Resolving Ember Microlib
 
 `components.js`
 
@@ -142,7 +170,7 @@ in my framework, you can see it just returns a string.
 
 ---
 
-### Matt's Elegant Ember Microlib
+### Matt's Resolving Ember Microlib
 
 
 ```js
@@ -169,9 +197,7 @@ const template = [
 ];
 
 setup();
-window.addEventListener('DOMContentLoaded', () => {
-  render(template);
-});
+render(template);
 ```
 
 <!--
@@ -183,13 +209,18 @@ Further down I've got a template inspired by Glimmer's opcode system, and
 a render function above that processes that. When the opcode 1 is present,
 that component is resolved and called.
 
-Let's build this app using some popular bundling tools, rollup and terser.
+The data passed with opcode 1 is the string `welcome`. This is the crux of a
+dynamic system: Instead of referencing the component directly, or template is
+using a name for the component. That introduces ambiguity about what the
+string is used for, ambiguity a lot of tooling can't penetrate.
+
+Let's see how that ambiguity presents itself in two common ways.
 
 -->
 
 ---
 
-### Matt's Elegant Ember Microlib
+### Matt's Resolving Ember Microlib
 
 
 ```js
@@ -198,24 +229,22 @@ function e() {
   return "<strong>Welcome!</strong>";
 }
 
-let n = {};
+let o = {};
 
-const o = e => e.map(([e, o]) => {
+o.welcome = e, [ [ 0, "To you I say: " ], [ 1, "welcome" ] ].map(([e, n]) => {
   switch (e) {
     case 0:
-      return o;
+      return n;
 
     case 1:
-      return n[o]();
+      return o[n]();
   }
-}).join(""), t = [ [ 0, "To you I say: " ], [ 1, "welcome" ] ];
-
-n.welcome = e, window.addEventListener("DOMContentLoaded", () => {
-  o(t);
-});
+}).join("");
 ```
 
 <!--
+
+First, I've run the program through some popular build tools: Rollup and terser.
 
 Rollup takes advantage of the fact that ES modules are static. That is,
 the imports and exports from a module can be understood without running that
@@ -227,13 +256,14 @@ program.
 Terser is a minification tool that uses static analysis to make your JavaScript
 payload smaller.
 
-Looks ok.
+For this version of the program, the output looks like what we would expect.
+the component is present, and the rendering logic is present.
 
 -->
 
 ---
 
-### Matt's Elegant Ember Microlib
+### Matt's Resolving Ember Microlib
 
 ```js
 const template = [
@@ -251,7 +281,7 @@ component, lets just render more text with opcode 0.
 
 ---
 
-### Matt's Elegant Ember Microlib
+### Matt's Resolving Ember Microlib
 
 ```js
 const template = [
@@ -268,53 +298,90 @@ Ok, lets compile this.
 
 ---
 
-### Matt's Elegant Ember Microlib
+### Matt's Resolving Ember Microlib
 
 
 ```js
 // rollup -i ember-microlib.js | terser --compress --mangle --toplevel --beautify
 function e() {
-    return "<strong>Welcome!</strong>";
+  return "<strong>Welcome!</strong>";
 }
 
 let n = {};
 
-const o = e => e.map(([e, o]) => {
-    switch (e) {
-      case 0:
-        return o;
+n.welcome = e, [ [ 0, "To you I say: " ], [ 0, "a fond farewell" ] ].map(([e, o]) => {
+  switch (e) {
+    case 0:
+      return o;
 
-      case 1:
-        return n[o]();
-    }
-}).join(""), t = [ [ 0, "To you I say: " ], [ 0, "a fond farewell" ] ];
-
-n.welcome = e, window.addEventListener("DOMContentLoaded", () => {
-    o(t);
-});
+    case 1:
+      return n[o]();
+  }
+}).join("");
 ```
 
 <!--
 
-Ok you can see our updated text, but look on top, our component is still
-included. What's up?
+In this output you wouldn't expect the component logic to be present, since we
+stopped referencing it in the templates. But because that relationship was
+something resolved at runtime and because rollup and terser don't know what the
+program will actually do, they aren't able to strip it out.
 
-The resolver pattern used in this example, and in Ember, simply isn't
-trivial to analyze statically. In fact you could try to analyze this program,
-but you would need to make several assumptions that aren't actually enforced
-by the JavaScript language.
-
-The dynamic nature of the resolver is also what makes it challenging for tools like
-jump to definition or TypeScript to work trivially with Ember apps.
-
-Tools like Embroider and the Ember language server attempt to do that extra
-work, but the effort is heroic and not without some caveats.
+Tool like Embroider close this gap by teaching build tools to assume
+things about the runtime, but I can give you another example of how this dynamic
+implementation frustrates analysis.
 
 -->
 
 ---
 
-### Matt's Eleganter Ember Microlib
+### Matt's Resolving Ember Microlib
+
+![](./images/failed-jump-to-definition.apng)
+
+<!--
+
+A second example of how the resolvers ambiguity has practical impacts is
+as common as looking at the most popular IDE for Ember users: VSCode. Here
+I've opened the micro lib and I've attempted to jump the definition of the
+component as it is referenced in the template.
+
+It isn't surprising this doesn't work: The data in the template is only a
+string. Again, in order to resolve this ambiguity about the meaning of
+the string "welcome" we would need to write a custom language server and
+encode certain assumptions about where to look for definitions.
+
+-->
+
+---
+
+### Dynamic resolution vs. static linking
+
+```hbs
+To you I say: <Welcome />
+```
+
+<!--
+
+The first draft of my microlib used dynamic resolution to look up components.
+Then the application boots, the available components are put in to a map then
+templates reference them by strings. In order for our eyes to know where to
+find a definition, or for our tooling to know, we need to teach those systems
+what the rules for resolution are.
+
+That's why when I ask *you* where to find the Welcome component, you can give
+a reasonable answer. You've internalized the rules.
+
+In contrast a static system, one based on ES modules, will always be explicit
+about where to find a definition.
+
+Lets build a second draft of the microlib, this time a static version.
+
+-->
+
+---
+
+### Matt's Static Ember Microlib
 
 ```js
 import { welcome } from './components';
@@ -335,90 +402,94 @@ const template = [
   [1, welcome]
 ];
 
-window.addEventListener('DOMContentLoaded', () => {
-  render(template);
-});
+render(template);
 ```
 
 <!--
 
-Let's cut out the resolver. In this version of the template I've referenced
+In this version of the template I've referenced
 the welome component directly. There is no setup, no list of components,
 no resolver.
 
-Lets run it through rollup and terser
+Further more if you want to see where the welcome component comes from there
+is little code to think about, right? You simple look to where the variable was
+introduced. Here, as an import.
 
 -->
 
+
 ---
 
-### Matt's Eleganter Ember Microlib
+### Matt's Static Ember Microlib
+
+![](./images/jump-to-definition.apng)
+
+<!--
+
+Now that the template contains a direct reference to the component, we don't
+need to teach tooling about any ambiguous cases. That means jump to definition
+will just work in a template like it would in most JavaScript code.
+
+-->
+---
+
+### Matt's Static Ember Microlib
 
 ```js
 // rollup -i ember-microlib.js | terser --compress --mangle --toplevel --beautify
-const n = [ [ 0, "To you I say: " ], [ 1, function() {
-    return "<strong>Welcome!</strong>";
-} ] ];
+[ [ 0, "To you I say: " ], [ 1, function() {
+  return "<strong>Welcome!</strong>";
+} ] ].map(([n, r]) => {
+  switch (n) {
+    case 0:
+      return r;
 
-window.addEventListener("DOMContentLoaded", () => {
-    n.map(([n, e]) => {
-        switch (n) {
-          case 0:
-            return e;
-
-          case 1:
-            return e();
-        }
-    }).join("");
-});
+    case 1:
+      return r();
+  }
+}).join("");
 ```
 
 <!--
 
-Check that out, the implementation of the component is actually written
-directly into the template a compilation time.
+And when the bundlers process this, the implementation of the component is
+actually written directly into the template a compilation time. Cool.
 
-We've made the link between the program and the component static, that is
-analyzable at build time. Not only does that remove a lookup step to make
-the component rendering faster, it means we analysis of the templates
-themselves can decide what supporting code needs to be included.
+We've made the link between the program and the component static. The tooling
+can not only understand where the component is being used, it can also
+understand if it isn't used at all.
 
 -->
 
 ---
 
-### Matt's Eleganter Ember Microlib
+### Matt's Static Ember Microlib
 
 ```js
-const e = [ [ 0, "To you I say: " ], [ 0, "a fond farewell" ] ];
+// rollup -i ember-microlib.js | terser --compress --mangle --toplevel --beautify
+[ [ 0, "To you I say: " ], [ 0, "a fond farewell" ] ].map(([a, e]) => {
+  switch (a) {
+    case 0:
+      return e;
 
-window.addEventListener("DOMContentLoaded", () => {
-  e.map(([e, n]) => {
-      switch (e) {
-        case 0:
-          return n;
-
-        case 1:
-          return n();
-      }
-  }).join("");
-});
+    case 1:
+      return e();
+  }
+}).join("");
 ```
 
 <!--
 
-For example here the template has been updated avoid rendering the component,
-and the bundlers can leave our component out all together.
+For example if we change the second render step back to "a fond farewell"
+instead of a component invocation, the bundler understands that the variable
+is not referenced and the entire component implementation can be dropped.
 
-ES modules were designed with this kind of analysis in mind. Efforts like
-Embroider are amazing technical solutions that patch over Ember's dynamic
-resolver, but if we can make the templates static we can get the same
-benefits without the complexity.
+Great. So Ember's templates are more featureful than my microlib. How can we
+bring the benefits of a staticly linked system to Ember itself?
 
 -->
 
 ---
-
 
 # Handlebars Strict Mode
 
@@ -499,42 +570,7 @@ creatively.
 
 ---
 
-# Template Imports
-
-###### Source template:
-
-```hbs
-{{#each @greetings as |myGreeting|}}
-  To {{this.subjectName}} I say: <q>{{myGreeting}}</q>
-{{/each}}
-```
-
-###### Compiled output:
-
-```js
-import { createTemplateFactory } from '@ember/template-factory';
-
-export default createTemplateFactory({
-  "id": "ANJ73B7b",
-  "block": "{\"statements\":[\"...\"]}",
-  "meta": { "moduleName": "greetings.hbs" }
-});
-```
-
-<!--
-
-The strict mode templat RFC does provide a way to get other components
-into the scope of a template.
-
-First consider that an Ember template is compiled from handlebars into
-JavaScript. Strict mode templates suggest that we can pass JavaScript variables
-into the scope of the template as part of the compilation.
-
--->
-
----
-
-# Template Imports
+# Handlebars Strict Mode
 
 ###### Source template:
 
@@ -554,11 +590,19 @@ export default createTemplateFactory({
   "id": "ANJ73B7b",
   "block": "{\"statements\":[\"...\"]}",
   "meta": { "moduleName": "greetings.hbs" },
+  "strict": true,
   "scope": () => [Quote]
 });
 ```
 
 <!--
+
+The strict mode templat RFC does provide a way to get other components
+into the scope of a template.
+
+First consider that an Ember template is compiled from handlebars into
+JavaScript. Strict mode templates suggest that we can pass JavaScript variables
+into the scope of the template as part of the compilation.
 
 For example here the strict template, which remember has no resolution,
 is invoking the component "Quote". In the compiled output the Quote
@@ -647,20 +691,33 @@ export default createTemplateFactory({
   "id": "ANJ73B7b",
   "block": "{\"statements\":[\"...\"]}",
   "meta": { "moduleName": "greetings.hbs" },
+  "strict": true,
   "scope": () => [Quote, titleize, animatedEach]
 });
 ```
 
 ---
 
-# Why haven't you shipped it
+# The Next Steps
 
-* In testing, how do you import `Foo` into ``hbs`<Foo />` ``?
-* How to you opt-in to strict mode and imports? `.hbml`?
-* Some Ember keywords must remain built-ins (`{{outlet}}`, `{{yield}}`,
-  `{{mount}}`), but what are the import paths for helpers?
-* Once you allow imports to be used in templates, _why not allow
-  any arbitrary old JavaScript and build single-file components?_
+- Get Handlebars Strict Mode into Final Comment Period, and land the primitives
+  it describes.
+- Build an addon for template imports so we can experiment with syntax and
+  opt-in for strict mode.
+- Start a design for what the ES module API is for built-ins like `<LinkTo>`
+  or `<Input />` 
+
+<!--
+
+What are our next steps in the process of delivering template imports? The
+strategy we used to experiment with and land Glimmer Components is the same
+as the approach we want to use here. We're going to land a flexible primitive,
+strict mode templates, and then experiement with practice implementations on
+top of that. This will help us test assumptions in the template imports
+design, and help us get feedback from the parts of the commmunity most
+excited to see this feature land.
+
+-->
 
 ---
 
@@ -669,16 +726,16 @@ export default createTemplateFactory({
 ###### An Ember template using the resolver
 
 ```hbs
-<Foo />
+<Welcome />
 ```
 
 ###### A static Ember template
 
 ```hbs
 ---
-import Foo from './quote';
+import Welcome from './welcome';
 ---
-<Foo />
+<Welcome />
 ```
 
 <!--
@@ -689,10 +746,10 @@ to understand, and I would argue they make it much easier for new developers
 to grasp where any random component is coming from.
 
 Module Unification has some interesting features you might have hear of like
-"contextual components". Explicit imports make those complex machinations
-unnecessary. Although we will continue to build a framework with strong
-conventions static imports also open the door to any organization of components
-you could normally do on the filesystem.
+"local lookup". Explicit imports will make those features unnecessary.
+An import syntax will allow components to be grouped naturally in
+your projects without us losing common conventions as suggested by linting
+and generators.
 
 -->
 
@@ -703,7 +760,7 @@ you could normally do on the filesystem.
 <!--
 
 So that is why JavaScript, or at least JavaScript import syntax,
-is coming to Ember templates in about 15 minutes. Explicit imports
+is coming to Ember templates. Explicit imports
 are an important part of building static templates. Static linking of
 template dependencies is a solution other frameworks and libraries have
 already innovated on, and in fact it is core to the design of ES modules
