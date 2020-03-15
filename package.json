@@ -9,6 +9,6 @@
   },
   "scripts": {
     "start": "yarn run marp -s -w",
-    "build": "cp -a src/images public/ && yarn run marp"
+    "build": "rm -rf public/* && cp -a src/images public/ && yarn run marp"
   }
 }
