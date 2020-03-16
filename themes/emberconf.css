@@ -64,6 +64,11 @@ h6 {
   color: rgb(101, 103, 130);
 }
 
+section a {
+  color: rgb(11, 73, 85);
+  text-decoration: underline;
+}
+
 section header {
   font-size: 1.1em;
   font-weight: bold;

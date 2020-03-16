@@ -29,7 +29,7 @@ p {
 Good afternoon! I'm Matthew Beale and I'm excited to speaking with you again
 here at EmberConf. 
 
-I've been increadibly inspired by the work Tilde, the
+I've been increadibly inspired by the work Tilde (til-duh), the
 conference organizers, my fellow speakers, and many others have done to make
 this conference a success despite overwhelming circumstances. My heart and
 thanks go out to each of you for making this feel like a real community moment.
@@ -105,20 +105,20 @@ But if you want to build an implementation of jump to definition..
 To you I say: <Welcome />
 ```
 
-- `app/templates/components/welcome.hbs`
-- `app/templates/components/welcome/template.hbs`
-- `node_modules/an-addon/app/templates/components/welcome.hbs`
-- `node_modules/an-addon/app/templates/components/welcome/template.hbs`
-- `node_modules/a-different-addon/app/templates/components/welcome.hbs`
+- `app/templates/components/welcome.js`
+- `app/templates/components/welcome/component.js`
+- `node_modules/an-addon/app/templates/components/welcome.js`
+- `node_modules/an-addon/app/templates/components/welcome/component.js`
+- `node_modules/a-different-addon/app/templates/components/welcome.js`
 - Actually, it could literally be anywhere since resolvers are a runtime concern :grimacing:
 
 <!--
 
 ...or get
-TypeScript to understand where the component's template might be, you need
+TypeScript to understand where the component's definition might be, you need
 to consider a number of other valid locations.
 
-Ember's resovler permits component templates to be defined in a number of different
+Ember's resovler permits components to be defined in a number of different
 locations in your app and addons, and the logic for deciding which to use is implemented as part of
 the application's runtime logic.
 
@@ -517,6 +517,8 @@ bring the benefits of a staticly linked system to Ember itself?
 
 # Handlebars Strict Mode
 
+###### [Strict Mode For Templates RFC](https://github.com/emberjs/rfcs/pull/496) (#496, open)
+
 <!--
 
 So what would a static template in Ember look like?
@@ -568,7 +570,7 @@ It contains...
 
 -->
 
-* Built-in helpers, arguments, block params, and accessing properties off the
+* Template keywords (`{{#each}}`, `{{#if}}` etc), arguments, block params, and accessing properties off the
   component state work just like they do in a regular template.
 <!--
 
@@ -703,7 +705,7 @@ import { animatedEach } from 'ember-animated/helpers';
 ---
 {{#animatedEach @greetings as |myGreeting|}}
   To {{titleize this.subjectName}} I say: <Quote>{{myGreeting}}</Quote>
-{{/each}}
+{{/animatedEach}}
 ```
 
 <!--
@@ -826,7 +828,7 @@ and generators.
 
 ## Ember :heart: JavaScript Modules
 
-###### Slides at [bit.ly/js-in-templates-2020](http://bit.ly/js-in-templates-2020)
+###### Slides at [bit.ly/js-in-templates-2020](http://bit.ly/js-in-templates-2020)<br>Tom's post on this topic: [Update on Module Unification](https://blog.emberjs.com/2019/03/11/update-on-module-unification-and-octane.html)<br>[Strict Mode For Templates RFC](https://github.com/emberjs/rfcs/pull/496) (open)<br>[Contextual Helpers & Modifiers RFC](https://github.com/emberjs/rfcs/blob/master/text/0432-contextual-helpers.md)
 
 ###### Matthew Beale<br>Ember Framework & Steering<br>Engineering @ [Addepar](https://addepar.com/).
 
@@ -843,6 +845,9 @@ making our templates more readable able better analyzed is something I'm
 excited about. Even more than than, it will take challenges that Ember has in
 common with any other JavaScript project, and better allow us to share
 common solutions.
+
+If you want to do further reading on this topic I encouage you to
+take a look at these links.
 
 Thanks for joining us at EmberConf. I look forward to talking about this topic
 more on the chat.
