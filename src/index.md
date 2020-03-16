@@ -85,11 +85,11 @@ To you I say: <Welcome />
 <!--
 
 Lets say we're reading this template: Most Ember developers would intuit
-that they could look for the definition of `Welcome`'s template here:
+that they could look for the definition of `Welcome`'s component here:
 
 -->
 
-- `app/templates/components/welcome.hbs`
+- `app/components/welcome.js`
 
 <!--
 
@@ -105,11 +105,11 @@ But if you want to build an implementation of jump to definition..
 To you I say: <Welcome />
 ```
 
-- `app/templates/components/welcome.js`
-- `app/templates/components/welcome/component.js`
-- `node_modules/an-addon/app/templates/components/welcome.js`
-- `node_modules/an-addon/app/templates/components/welcome/component.js`
-- `node_modules/a-different-addon/app/templates/components/welcome.js`
+- `app/components/welcome.js`
+- `app/components/welcome/component.js`
+- `node_modules/an-addon/app/components/welcome.js`
+- `node_modules/an-addon/app/components/welcome/component.js`
+- `node_modules/a-different-addon/app/components/welcome.js`
 - Actually, it could literally be anywhere since resolvers are a runtime concern :grimacing:
 
 <!--
