@@ -1,7 +1,12 @@
 ---
 theme: emberconf
-footer: Why JavaScript is Coming to Ember Templates - EmberConf 2020
+footer: "Why JavaScript is Coming to Ember Templates - EmberConf 2020"
+paginate: true
 ---
+
+<!-- _class: title -->
+<!-- _footer: "" -->
+<!-- _paginate: false -->
 
 <style scoped>
 p {
@@ -11,27 +16,37 @@ p {
 
 # Why JavaScript is Coming to Ember Templates
 
-###### Matthew Beale<br>Ember Framework & Steering<br>Engineering @ Addepar.<br>_Come work with me in NYC!_
+###### Slides at [bit.ly/js-in-templates-2020](http://bit.ly/js-in-templates-2020)
+
+###### Matthew Beale<br>Ember Framework & Steering<br>Engineering @ [Addepar](https://addepar.com/).
+
+###### _We're hiring! Come work with me in NYC._
 
 ![bg right:40% w:80%](./images/emberconf-logo.svg)
 
 <!--
 
-Good afternoon! I'm Matthew Beale and I'm excited to be back with you here
-at EmberConf. I've been increadibly inspired by the work Tilde, the
+Good afternoon! I'm Matthew Beale and I'm excited to speaking with you again
+here at EmberConf. 
+
+I've been increadibly inspired by the work Tilde, the
 conference organizers, my fellow speakers, and many others have done to make
 this conference a success despite overwhelming circumstances. My heart and
-thanks go out to each of you.
+thanks go out to each of you for making this feel like a real community moment.
 
--->
+Last year I started a new role in engineering at Addepar. We work on one
+of the longest-maintained Ember codebases, and additionally on a couple new
+app using Ember Octane. In a big project like ours, you quickly learn to
+prioritize writing code that is easy to read, and thats one of the reasons
+this topic today it important to me.
 
-<!--
-
-So there is a joke on the core teams, it goes...
+Ok, so, there is a joke on the core teams, it goes...
 
 -->
 
 ---
+
+<!-- _class: secondary -->
 
 ## "No more unification RFCs"
 
@@ -80,9 +95,7 @@ that they could look for the definition of `Welcome`'s template here:
 
 and that is often correct.
 
-But if you want to build an implementation of jump to definition, or get
-TypeScript to understand where the component's template might be, you need
-to consider a number of other valid locations.
+But if you want to build an implementation of jump to definition..
 
 -->
 
@@ -101,12 +114,16 @@ To you I say: <Welcome />
 
 <!--
 
-Ember's resovler permits that template to be defined in a number of different
-locations, and the logic for deciding which to use is implemented as part of
+...or get
+TypeScript to understand where the component's template might be, you need
+to consider a number of other valid locations.
+
+Ember's resovler permits component templates to be defined in a number of different
+locations in your app and addons, and the logic for deciding which to use is implemented as part of
 the application's runtime logic.
 
 That makes
-it challenging to support common static tooling like IDEs, type systmes,
+it challenging to support common static tooling like IDEs, type systems,
 and bundlers common across other parts of the JavaScript community.
 
 -->
@@ -122,20 +139,12 @@ and bundlers common across other parts of the JavaScript community.
 
 <!--
 
-Anyway who is familiar with the concept of a local maxima? When you're looking
-for a solution to a problem there are probably may possible solutions. (joke
-about how to fix things?)
-Sometimes, you pick a totally reasonable solution, but you end up so fixated
-on the solution you have that it is hard to see a better solution. (joke? AI?
-RNN?)
+Maybe you're already familiar with the concept of a local maximum? When you're looking
+for a solution to a problem there are probably may possible solutions. And
+the path to get from solution to solution may not be linear, making it easy
+to over focus on what you already think is best.
 
-Module Unification was a local maxima. We saw some problems with how complex
-Ember's resolver system was and we tried to solve them by resolving even
-harder than before. By introducing more formal rules and requirements.
-
-In hindsight it was a local maxima, and the rest of the JavaScript community
-was climbing the hill to a better solution. This talk is about how we're going
-to align Ember with that better solution.
+You'll often read about this idea if you dig into neural network systems.
 
 -->
 
@@ -148,9 +157,26 @@ to align Ember with that better solution.
 
 ![bg auto](./images/local-maximum-local-img.png)
 
+<!--
+
+For example the nn on this horse-generating AI website managed to generate a
+realistic image of a horse on the right as a global maxima, but in other cases
+it was equally confident but missed the mark.
+
+Module Unification was a local maxima. We had identified where Ember's
+resolution system wasn't always clear about which file should be resolved,
+and Module Unification introduced more formal rules and requirements to
+"unify" the system.
+
+In hindsight it was a local maximum, and the rest of the JavaScript community
+was climbing the hill to a better solution. This talk is about how we're going
+to align Ember with that better solution.
+
+-->
+
 ---
 
-### Matt's Resolving Ember Microlib
+<!-- header: "Matt's Resolving Ember Microlib" -->
 
 `components.js`
 
@@ -170,8 +196,7 @@ in my framework, you can see it just returns a string.
 
 ---
 
-### Matt's Resolving Ember Microlib
-
+<!-- header: "" -->
 
 ```js
 import { welcome } from './components';
@@ -220,8 +245,7 @@ Let's see how that ambiguity presents itself in two common ways.
 
 ---
 
-### Matt's Resolving Ember Microlib
-
+<!-- header: "Matt's Resolving Ember Microlib" -->
 
 ```js
 // rollup -i ember-microlib.js | terser --compress --mangle --toplevel --beautify
@@ -263,7 +287,7 @@ the component is present, and the rendering logic is present.
 
 ---
 
-### Matt's Resolving Ember Microlib
+<!-- header: "Matt's Resolving Ember Microlib" -->
 
 ```js
 const template = [
@@ -281,7 +305,7 @@ component, lets just render more text with opcode 0.
 
 ---
 
-### Matt's Resolving Ember Microlib
+<!-- header: "Matt's Resolving Ember Microlib" -->
 
 ```js
 const template = [
@@ -298,7 +322,7 @@ Ok, lets compile this.
 
 ---
 
-### Matt's Resolving Ember Microlib
+<!-- header: "Matt's Resolving Ember Microlib" -->
 
 
 ```js
@@ -328,21 +352,21 @@ something resolved at runtime and because rollup and terser don't know what the
 program will actually do, they aren't able to strip it out.
 
 Tool like Embroider close this gap by teaching build tools to assume
-things about the runtime, but I can give you another example of how this dynamic
-implementation frustrates analysis.
+things about the runtime during build-time analysis, but I can give you another
+example of how the resolver's dynamic implementation frustrates analysis.
 
 -->
 
 ---
 
-### Matt's Resolving Ember Microlib
+<!-- header: "Matt's Resolving Ember Microlib" -->
 
 ![](./images/failed-jump-to-definition.apng)
 
 <!--
 
-A second example of how the resolvers ambiguity has practical impacts is
-as common as looking at the most popular IDE for Ember users: VSCode. Here
+Finding a second example of how the abigutity of our resolver-based library has practical impacts is
+as easy as looking at the most popular IDE for Ember users: VSCode. Here
 I've opened the micro lib and I've attempted to jump the definition of the
 component as it is referenced in the template.
 
@@ -355,7 +379,9 @@ encode certain assumptions about where to look for definitions.
 
 ---
 
-### Dynamic resolution vs. static linking
+<!-- header: "" -->
+
+# Dynamic resolution vs. static linking
 
 ```hbs
 To you I say: <Welcome />
@@ -381,7 +407,7 @@ Lets build a second draft of the microlib, this time a static version.
 
 ---
 
-### Matt's Static Ember Microlib
+<!-- header: "" -->
 
 ```js
 import { welcome } from './components';
@@ -420,7 +446,7 @@ introduced. Here, as an import.
 
 ---
 
-### Matt's Static Ember Microlib
+<!-- header: "Matt's Static Ember Microlib" -->
 
 ![](./images/jump-to-definition.apng)
 
@@ -432,8 +458,6 @@ will just work in a template like it would in most JavaScript code.
 
 -->
 ---
-
-### Matt's Static Ember Microlib
 
 ```js
 // rollup -i ember-microlib.js | terser --compress --mangle --toplevel --beautify
@@ -463,8 +487,6 @@ understand if it isn't used at all.
 
 ---
 
-### Matt's Static Ember Microlib
-
 ```js
 // rollup -i ember-microlib.js | terser --compress --mangle --toplevel --beautify
 [ [ 0, "To you I say: " ], [ 0, "a fond farewell" ] ].map(([a, e]) => {
@@ -491,6 +513,8 @@ bring the benefits of a staticly linked system to Ember itself?
 
 ---
 
+<!-- header: "" -->
+
 # Handlebars Strict Mode
 
 <!--
@@ -506,7 +530,7 @@ cases are disabled.
 
 ---
 
-# Handlebars Strict Mode
+### What are the constraints in strict mode? 
 
 * No implicit `this` fallback. `{{foo}}` doesn't imply `{{this.foo}}`.
 * No resolution. For example `{{foo-bar}}` is only ever a variable.
@@ -526,7 +550,7 @@ isolation.
 
 ---
 
-# Handlebars Strict Mode
+<!-- header: "Handlebars Strict Mode" -->
 
 ```hbs
 {{#each @greetings as |myGreeting|}}
@@ -536,41 +560,39 @@ isolation.
 
 <!--
 
-So here is some content for an handlebars strict mode template.
-A strict mode template, unlike the Ember templates we use today, is
-static. At build time the compiler can understand all links between this
-template and the others is depends on.
+So here is an example of a  handlebars strict mode template.
+It shouldn't look very different than an Ember template you might work in
+today.
 
-Of course remember our constraints
+It contains...
 
 -->
 
-* No resolution. For example `{{foo-bar}}` is only ever a variable.
-* No dynamic resolution. `{{component this.dynamicName}}`.
-* No partials. `{{partial 'foo-bar'}}`.
-
+* Built-in helpers, arguments, block params, and accessing properties off the
+  component state work just like they do in a regular template.
 <!--
 
-There really isn't a clear way to have a dependency in the first place.
-We've got a static template, but one of limited usefulness if we
-want to get anything done.
+However so that this template can have a static relationship to any
+components it might invoke, it also can't do some regular things..
+
+-->
+* There isn't a way to invoke a component from `app/`. For example, `<Quote />`
+  would not render a component.
+<!--
 
 And this brings us to the crux: We need a static solution for getting
 other components into the local scope of a strict mode template. Since
 we want to bundle our application as JavaScript, we want to do something that
 works with ES modules.
 
-And this takes us to the core of this talk: We don't use something that works
-with ES modules, we just use ES modules. On these next slides I'm going
-to show some template syntaxes that are very much not even in an RFC.
-In order to find a maxima for our template design we need to think
-creatively.
+And to work with ES modules, we need to consider what a strict mode template
+looks like when it is compiled to JavaScript.
 
 -->
 
 ---
 
-# Handlebars Strict Mode
+<!-- header: "" -->
 
 ###### Source template:
 
@@ -597,55 +619,56 @@ export default createTemplateFactory({
 
 <!--
 
-The strict mode templat RFC does provide a way to get other components
-into the scope of a template.
+Here a strict mode template is compiled into JavaScript. To bring Quote
+into scope, I've imported it from a file in the same directory.
 
-First consider that an Ember template is compiled from handlebars into
-JavaScript. Strict mode templates suggest that we can pass JavaScript variables
-into the scope of the template as part of the compilation.
+Just like with my static microlib earlier, the definition of the component
+is now itself passed to the compiled template. Common build tooling would
+work well with this output, and given some work on sourcemaps we can make
+jump-to-definition work.
 
-For example here the strict template, which remember has no resolution,
-is invoking the component "Quote". In the compiled output the Quote
-component is explicitly imported, then passed into the compiled template
-through a property "scope".;
+Of course this API, which is as far as the handlebars strict mode RFC goes,
+is only a primitive. We don't write compiled templates by
+hand. To make this readable and usable we need to find a way to lift the
+import statement into the template itself.
 
-This is basically as far a the handlebar strict mode template RFC goes.
-The RFC answers a lot of questions about what the constraints are for a static
-template, and proposes how the template engine can use ES modules at build
-time.
-
-We don't write compiled templates by hand though, so how do we use this
-when working normally?
+Which takes us to template imports.
 
 -->
 
 ---
 
+<!-- header: "" -->
+
 # Template Imports
 
 <!--
 
-There are several plausible approaches. A few constraints have become clear
-though.
+There are several plausible approaches to getting imports into templates.
+To keep our design unsurprising
+to both new developers and advanced users, we think two constraints are
+important to keep in mind:
 
 -->
 
-* Any system for importing components (and other data) into scope must use
-  paths compatible with node.
-* Any system should allow importing with the same semantics as ES Module
-  imports (default, named).
+* You can import a default or a named export into your template.
+* The right side of an import, the path, works just like it does in any
+  system using Node.js resolution.
 
 <!--
 
-Given that we accept these constraints, we should as a question: If we're going
-to constrain ourselves so closly to re-implementing how ES modules work in
-templates, why not just use ES modules syntax?
+Given that we accept these constraints, it begs a question: If we're going
+to constrain ourselves so closly to re-implementing the way ES modules already
+work, why not simply adopt ES syntax into templates? In fact, any design which
+isn't simply module syntax seems to bend commmon sense past the breaking point.
+
+So that is what we're going to do. Let's take a look.
 
 -->
 
 ---
 
-# Template Imports
+<!-- header: Template Imports -->
 
 ###### A single component import
 
@@ -658,9 +681,17 @@ import Quote from './quote';
 {{/each}}
 ```
 
----
+<!-- 
 
-# Template Imports
+A strict mode template doesn't need to have any imports. If it doesn't then
+the template can skip any preamble. If it does, we introduce a block for
+writing imports above the template itself. 
+
+In this block we're going to permit only import syntax in our first pass.
+
+-->
+
+---
 
 ###### Imports from the app, framework, and an addon
 
@@ -675,9 +706,21 @@ import { animatedEach } from 'ember-animated/helpers';
 {{/each}}
 ```
 
----
+<!--
 
-# Template Imports
+Imports can come from any path, so here from the local file quote, or from the
+framework itself with titlize, or from an addon as with animatedEach.
+
+This opens up new organization options for your app. If you have a naturally
+grouped set of components, you can group then on disk where it seems
+appropriate. Additionally, related helper and modifiers could easily share a
+single file but be exposed at named exports.
+
+How do these imports compile back into JavaScript?
+
+-->
+
+---
 
 ###### Imports from the app, framework, and an addon after compilation
 
@@ -696,9 +739,21 @@ export default createTemplateFactory({
 });
 ```
 
+<!--
+
+Just as with the hand-written compilation from earlier, these three
+components are passed to the compiled template as references. The
+template import syntax will allow us to write static templates which are
+easier for both our eyes and our tooling to understand.
+
+-->
+
 ---
 
-# The Next Steps
+<!-- class: title -->
+<!-- header: "" -->
+
+## Next Steps for Template Imports
 
 - Get Handlebars Strict Mode into Final Comment Period, and land the primitives
   it describes.
@@ -709,19 +764,28 @@ export default createTemplateFactory({
 
 <!--
 
-What are our next steps in the process of delivering template imports? The
-strategy we used to experiment with and land Glimmer Components is the same
-as the approach we want to use here. We're going to land a flexible primitive,
-strict mode templates, and then experiement with practice implementations on
-top of that. This will help us test assumptions in the template imports
-design, and help us get feedback from the parts of the commmunity most
-excited to see this feature land.
+What are our next steps in the process of delivering template imports? Before
+Glimmer Components were fully stabilized, we shipped them as an addon for
+users on the cutting edge. We could do this because we added a simple primitive,
+component managers, to the framework in a stable release. The feedback we
+got from those early adopters helped polish the API before glimmer components
+were promoted to a stable release.
+
+We want to use the same strategy with template imports....
+
+First land a primitive API, and that is Handlebars Strict Mode...
+
+The build an addon supporting template imports themselves so we can get
+feedback from early adopters eager to try this feature...
+
+And in the meantime we will have some last-mile work, such as figuring out
+ES module paths for many framework built-ins.
 
 -->
 
 ---
 
-# Closing the gap
+<!-- class: '' -->
 
 ###### An Ember template using the resolver
 
@@ -740,35 +804,47 @@ import Welcome from './welcome';
 
 <!--
 
-I want to remind everyone that performance isn't the biggest motivation.
-Static templates with ES imports are going to be much easier for our tooling
-to understand, and I would argue they make it much easier for new developers
-to grasp where any random component is coming from.
+I've talked a lot about the technical nature of a static template in this
+talk. Despite the fact that static templates will have performance and payload
+size impacts, I want to remind everyone that performance isn't the headline
+motivation. Static templates with ES imports are going to make it simple
+to understand where a component is coming from for our tooling, but also for
+our eyes.
 
-Module Unification has some interesting features you might have hear of like
-"local lookup". Explicit imports will make those features unnecessary.
+Additionally Module Unification had some interesting features you might have
+heard of like "local lookup". Explicit imports will make those features unnecessary.
 An import syntax will allow components to be grouped naturally in
-your projects without us losing common conventions as suggested by linting
+your projects without losing common conventions as suggested by linting
 and generators.
 
 -->
 
 ---
 
-# Closing the gap
+<!-- class: title -->
+<!-- _footer: "" -->
+
+## Ember :heart: JavaScript Modules
+
+###### Slides at [bit.ly/js-in-templates-2020](http://bit.ly/js-in-templates-2020)
+
+###### Matthew Beale<br>Ember Framework & Steering<br>Engineering @ [Addepar](https://addepar.com/).
+
+###### _We're hiring! Come work with me in NYC._
+
+![bg right:40% w:80%](./images/emberconf-logo.svg)
 
 <!--
 
 So that is why JavaScript, or at least JavaScript import syntax,
-is coming to Ember templates. Explicit imports
-are an important part of building static templates. Static linking of
-template dependencies is a solution other frameworks and libraries have
-already innovated on, and in fact it is core to the design of ES modules
-themselves.
+is coming to Ember templates. You know, the Ember project was one of the earliest
+adopters of ES modules. Embracing the opportunities they present in
+making our templates more readable able better analyzed is something I'm
+excited about. Even more than than, it will take challenges that Ember has in
+common with any other JavaScript project, and better allow us to share
+common solutions.
 
-Stepping away from Module Unification last year was a recognition that our
-designs were stuck on a local maxima. This reorientation will work us toward
-something better, and something better aligned with the entirity of the
-JavaScript ecosystem.
+Thanks for joining us at EmberConf. I look forward to talking about this topic
+more on the chat.
 
 -->

@@ -63,3 +63,36 @@ h6 {
   font-size: 0.8em;
   color: rgb(101, 103, 130);
 }
+
+section header {
+  font-size: 1.1em;
+  font-weight: bold;
+  color: rgb(207, 73, 46);
+  padding: 58px 0 0 47px;
+}
+
+section::after {
+  font-size: 18px;
+}
+
+section.title {
+  background-color: rgb(35,26,58);
+}
+
+section.title h1, section.title h2, section.title h3, section.title h4, section.title h5 {
+  color: rgb(231, 195, 133);
+}
+section.title h6 {
+  color: rgb(226, 220, 211);
+}
+section.title a {
+  color: rgb(107, 171, 184);
+}
+
+section.secondary {
+  background-color: rgb(226, 220, 211);
+}
+
+section.title li, section.title p {
+  color: rgb(226, 220, 211);
+}
